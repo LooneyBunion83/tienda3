@@ -14,17 +14,12 @@ $currentTime = date( 'd-m-Y h:i:s A', time () );
 if(isset($_POST['submit']))
 {
 	$category=$_POST['category'];
-	$description=$_POST['description'];
-$sql=mysqli_query($con,"insert into category(categoryName,categoryDescription) values('$category','$description')");
-$_SESSION['msg']="Category Created !!";
+	$subcat=$_POST['subcategory'];
+	$id=intval($_GET['id']);
+$sql=mysqli_query($con,"update subcategory set categoryid='$category',subcategory='$subcat',updationDate='$currentTime' where id='$id'");
+$_SESSION['msg']="Sub-Category Updated !!";
 
 }
-
-if(isset($_GET['del']))
-		  {
-		          mysqli_query($con,"delete from category where id = '".$_GET['id']."'");
-                  $_SESSION['delmsg']="Category deleted !!";
-		  }
 
 ?>
 <!DOCTYPE html>
@@ -32,7 +27,7 @@ if(isset($_GET['del']))
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Admin| Category</title>
+	<title>Admin| Editar SubCategoria</title>
 	<link type="text/css" href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	<link type="text/css" href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
 	<link type="text/css" href="css/theme.css" rel="stylesheet">
@@ -46,12 +41,12 @@ if(isset($_GET['del']))
 		<div class="container">
 			<div class="row">
 <?php include('include/sidebar.php');?>				
-			<div class="span11">
+			<div class="span9">
 					<div class="content">
 
 						<div class="module">
 							<div class="module-head">
-								<h3>Categoria</h3>
+								<h3>Editar SubCategoria</h3>
 							</div>
 							<div class="module-body">
 
@@ -64,36 +59,53 @@ if(isset($_GET['del']))
 <?php } ?>
 
 
-									<?php if(isset($_GET['del']))
-{?>
-									<div class="alert alert-error">
-										<button type="button" class="close" data-dismiss="alert">×</button>
-									<strong>Oh vaya!</strong> 	<?php echo htmlentities($_SESSION['delmsg']);?><?php echo htmlentities($_SESSION['delmsg']="");?>
-									</div>
-<?php } ?>
-
 									<br />
 
 			<form class="form-horizontal row-fluid" name="Category" method="post" >
-									
+<?php
+$id=intval($_GET['id']);
+$query=mysqli_query($con,"select category.id,category.categoryName,subcategory.subcategory from subcategory join category on category.id=subcategory.categoryid where subcategory.id='$id'");
+while($row=mysqli_fetch_array($query))
+{
+?>		
+
 <div class="control-group">
-<label class="control-label" for="basicinput">Nombre categoria</label>
+<label class="control-label" for="basicinput">Categoria</label>
 <div class="controls">
-<input type="text" placeholder="Ingrese nombre de categoria"  name="category" class="span8 tip" required>
+<select name="category" class="span8 tip" required>
+<option value="<?php echo htmlentities($row['id']);?>"><?php echo htmlentities($catname=$row['categoryName']);?></option>
+<?php $ret=mysqli_query($con,"select * from category");
+while($result=mysqli_fetch_array($ret))
+{
+echo $cat=$result['categoryName'];
+if($catname==$cat)
+{
+	continue;
+}
+else{
+?>
+<option value="<?php echo $result['id'];?>"><?php echo $result['categoryName'];?></option>
+<?php } }?>
+</select>
 </div>
 </div>
+
+
 
 
 <div class="control-group">
-											<label class="control-label" for="basicinput">Descripción</label>
-											<div class="controls">
-												<textarea class="span8" name="description" rows="5"></textarea>
-											</div>
-										</div>
+<label class="control-label" for="basicinput">Nombre de subcategoria</label>
+<div class="controls">
+<input type="text" placeholder="Ingrese nombre de subcategoria"  name="subcategory" value="<?php echo  htmlentities($row['subcategory']);?>" class="span8 tip" required>
+</div>
+</div>
+
+
+									<?php } ?>	
 
 	<div class="control-group">
 											<div class="controls">
-												<button type="submit" name="submit" class="btn">Crear</button>
+												<button type="submit" name="submit" class="btn">Actualizar</button>
 											</div>
 										</div>
 									</form>
@@ -101,44 +113,7 @@ if(isset($_GET['del']))
 						</div>
 
 
-	<div class="module">
-							<div class="module-head">
-								<h3>Administrar Categorias</h3>
-							</div>
-							<div class="module-body table">
-								<table cellpadding="0" cellspacing="0" border="0" class="datatable-1 table table-bordered table-striped	 display" width="100%">
-									<thead>
-										<tr>
-											<th>#</th>
-											<th>Categoria</th>
-											<th>Descripción</th>
-											<th>Fecha de creación</th>
-											<th>Última actualización</th>
-											<th>Acción</th>
-										</tr>
-									</thead>
-									<tbody>
-
-<?php $query=mysqli_query($con,"select * from category");
-$cnt=1;
-while($row=mysqli_fetch_array($query))
-{
-?>									
-										<tr>
-											<td><?php echo htmlentities($cnt);?></td>
-											<td><?php echo htmlentities($row['categoryName']);?></td>
-											<td><?php echo htmlentities($row['categoryDescription']);?></td>
-											<td> <?php echo htmlentities($row['creationDate']);?></td>
-											<td><?php echo htmlentities($row['updationDate']);?></td>
-											<td>
-											<a href="edit-category.php?id=<?php echo $row['id']?>" ><i class="icon-edit"></i></a>
-											<a href="category.php?id=<?php echo $row['id']?>&del=delete" onClick="return confirm('Are you sure you want to delete?')"><i class="icon-remove-sign"></i></a></td>
-										</tr>
-										<?php $cnt=$cnt+1; } ?>
-										
-								</table>
-							</div>
-						</div>						
+						
 
 						
 						
